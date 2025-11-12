@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeomAI - Automated DWG to GIS Conversion Platform</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --accent-color: #3b82f6;
+            --dark: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --medium-gray: #2a2a2a;
+            --light-gray: #e5e5e5;
+            --white: #ffffff;
+            --text-primary: #0a0a0a;
+            --text-secondary: #737373;
+            --border: #e5e5e5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', 'Heebo', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background: var(--white);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body.rtl {
+            direction: rtl;
+            font-family: 'Heebo', 'Inter', -apple-system, sans-serif;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--dark);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 900;
+            font-size: 1.3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-center a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .nav-center a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .lang-switcher {
+            display: flex;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-btn.active {
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .contact-btn {
+            padding: 0.75rem 1.75rem;
+            background: var(--dark);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .contact-btn:hover {
+            background: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--dark);
+            transition: 0.3s;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .mobile-menu a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Animated Background Workflow */
+        .workflow-animation {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            height: 500px;
+            opacity: 0.25;
+            z-index: 0;
+        }
+
+        body.rtl .workflow-animation {
+            right: auto;
+            left: 5%;
+        }
+        
+        .workflow-animation text {
+            font-family: 'Inter', 'Heebo', sans-serif;
+            font-weight: 700;
+        }
+
+        /* File animation */
+        @keyframes fileMove {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(-80px) scale(1);
+            }
+            30% {
+                transform: translateY(-80px) scale(0.8);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(-80px) scale(0.3);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(-80px) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        .workflow-file {
+            animation: fileMove 8s ease-in-out infinite;
+        }
+
+        .workflow-file:nth-child(2) {
+            animation-delay: 4s;
+        }
+
+        /* AI Engine pulse */
+        @keyframes aiPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        .ai-engine {
+            animation: aiPulse 2s ease-in-out infinite;
+        }
+
+        /* Checkmark appear */
+        @keyframes checkAppear {
+            0%, 25% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            35% {
+                transform: scale(1);
+            }
+            40%, 100% {
+                opacity: 0;
+            }
+        }
+
+        .check-mark {
+            animation: checkAppear 8s ease-in-out infinite;
+        }
+
+        .check-mark:nth-child(2) {
+            animation-delay: 4s;
+        }
+
+        /* Map polygon building */
+        @keyframes mapBuild {
+            0%, 40% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            45% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .map-polygon {
+            opacity: 0;
+            transform-origin: center;
+        }
+
+        .map-polygon:nth-child(1) {
+            animation: mapBuild 8s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+
+        .map-polygon:nth-child(2) {
+            animation: mapBuild 8s ease-in-out infinite;
+            animation-delay: 3.3s;
+        }
+
+        .map-polygon:nth-child(3) {
+            animation: mapBuild 8s ease-in-out infinite;
+            animation-delay: 7s;
+        }
+
+        .map-polygon:nth-child(4) {
+            animation: mapBuild 8s ease-in-out infinite;
+            animation-delay: 7.3s;
+        }
+
+        /* Connecting lines */
+        @keyframes lineDraw {
+            0%, 20% {
+                stroke-dashoffset: 100;
+                opacity: 0;
+            }
+            25% {
+                opacity: 1;
+            }
+            30% {
+                stroke-dashoffset: 0;
+            }
+            35%, 100% {
+                stroke-dashoffset: 0;
+                opacity: 0.3;
+            }
+        }
+
+        .connecting-line {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: lineDraw 8s ease-in-out infinite;
+        }
+
+        .connecting-line:nth-child(2) {
+            animation-delay: 4s;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1.25rem;
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 0.02em;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            letter-spacing: -0.03em;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            line-height: 1.7;
+            max-width: 700px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 1.125rem 2.5rem;
+            background: var(--dark);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 1.125rem 2.5rem;
+            background: transparent;
+            color: var(--dark);
+            border: 2px solid var(--dark);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 6rem 0;
+            background: var(--dark);
+            color: var(--white);
+        }
+
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            color: var(--light-gray);
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 0;
+            background: var(--white);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.25rem;
+            color: var(--dark);
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--dark);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.75rem;
+            font-size: 1.75rem;
+        }
+
+        .feature-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.875rem;
+            color: var(--dark);
+            letter-spacing: -0.01em;
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* Case Study Section */
+        .case-study {
+            padding: 8rem 0;
+            background: #f9fafb;
+        }
+
+        .case-study-card {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 4rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .case-study-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .case-study-logo {
+            width: 100px;
+            height: 100px;
+            background: var(--dark);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+        }
+
+        .case-study-content {
+            display: grid;
+            gap: 2.5rem;
+        }
+
+        .case-study-section {
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .case-study-section h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .case-study-section p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .case-study-results {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 2rem;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .result-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Video Section */
+        .video-section {
+            padding: 8rem 0;
+            background: var(--white);
+        }
+
+        .video-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            background: var(--dark);
+        }
+
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--medium-gray) 100%);
+            color: var(--white);
+        }
+
+        .play-button {
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .play-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-left: 30px solid white;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            margin-left: 8px;
+        }
+
+        /* Download Section */
+        .download-section {
+            padding: 8rem 0;
+            background: #f9fafb;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 8rem 0;
+            background: var(--white);
+        }
+
+        .contact-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .contact-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--dark);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .contact-card:hover {
+            border-color: var(--dark);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .email-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .email-card:hover::before {
+            background: var(--primary-color);
+        }
+
+        .whatsapp-card:hover {
+            border-color: #25D366;
+        }
+
+        .whatsapp-card:hover::before {
+            background: #25D366;
+        }
+
+        .contact-card-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--dark);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            transition: all 0.3s;
+        }
+
+        .email-card:hover .contact-card-icon {
+            background: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .whatsapp-card:hover .contact-card-icon {
+            background: #25D366;
+            transform: scale(1.1);
+        }
+
+        .contact-card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            letter-spacing: -0.01em;
+        }
+
+        .contact-card-detail {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .contact-card-action {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: var(--dark);
+            color: var(--white);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .email-card:hover .contact-card-action {
+            background: var(--primary-color);
+        }
+
+        .whatsapp-card:hover .contact-card-action {
+            background: #25D366;
+        }
+
+        .download-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 4rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .download-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--dark);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 2.5rem;
+        }
+
+        .download-info {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .download-stat {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .download-stat strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 5rem 0 2.5rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-brand p {
+            color: var(--light-gray);
+            line-height: 1.8;
+            margin-bottom: 1.75rem;
+            font-size: 1rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .social-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .footer-column h4 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.75rem;
+            color: var(--white);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-column ul li a {
+            color: var(--light-gray);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--white);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RTL Styles */
+        body.rtl .play-icon {
+            transform: rotate(180deg);
+            margin-left: 0;
+            margin-right: 8px;
+        }
+
+        body.rtl .contact-card-action {
+            flex-direction: row-reverse;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+
+            .workflow-animation {
+                width: 320px;
+                height: 420px;
+                opacity: 0.2;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .case-study-results {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-center {
+                display: none;
+            }
+
+            .contact-btn {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .nav-container {
+                padding: 0 1.5rem;
+                height: 70px;
+            }
+
+            .hero {
+                margin-top: 70px;
+                min-height: calc(100vh - 70px);
+            }
+
+            .hero-container {
+                padding: 3rem 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .workflow-animation {
+                display: none;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .section-subtitle {
+                font-size: 1.125rem;
+            }
+
+            .features {
+                padding: 5rem 0;
+            }
+
+            .case-study {
+                padding: 5rem 0;
+            }
+
+            .video-section {
+                padding: 5rem 0;
+            }
+
+            .download-section {
+                padding: 5rem 0;
+            }
+
+            .contact-section {
+                padding: 5rem 0;
+            }
+
+            .contact-cards {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .contact-card {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                padding: 4rem 0;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 3rem;
+            }
+
+            .footer-social {
+                justify-content: center;
+            }
+
+            .download-card {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .download-info {
+                gap: 1.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+                display: flex;
+            }
+
+            .case-study-card {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .case-study-results {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .hero-container {
+                padding: 2rem 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .feature-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">GeomAI</div>
+            </div>
+            
+            <ul class="nav-center">
+                <li><a href="#home" data-en="Home" data-he="בית">Home</a></li>
+                <li><a href="#features" data-en="Features" data-he="תכונות">Features</a></li>
+                <li><a href="#case-study" data-en="Success Story" data-he="סיפור הצלחה">Success Story</a></li>
+                <li><a href="#demo" data-en="Demo" data-he="הדגמה">Demo</a></li>
+                <li><a href="#contact" data-en="Contact" data-he="צור קשר">Contact</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                    <div class="lang-switcher">
+                    <button class="lang-btn active" data-lang="en" onclick="setLanguage('en', this)">
+                        <span>🇬🇧</span> EN
+                    </button>
+                    <button class="lang-btn" data-lang="he" onclick="setLanguage('he', this)">
+                        <span>🇮🇱</span> HE
+                    </button>
+                    </div>
+                <button class="contact-btn" data-en="Get Started" data-he="התחל עכשיו">Get Started</button>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="#home" data-en="Home" data-he="בית" onclick="toggleMobileMenu()">Home</a></li>
+            <li><a href="#features" data-en="Features" data-he="תכונות" onclick="toggleMobileMenu()">Features</a></li>
+            <li><a href="#case-study" data-en="Success Story" data-he="סיפור הצלחה" onclick="toggleMobileMenu()">Success Story</a></li>
+            <li><a href="#demo" data-en="Demo" data-he="הדגמה" onclick="toggleMobileMenu()">Demo</a></li>
+            <li><a href="#contact" data-en="Contact" data-he="צור קשר" onclick="toggleMobileMenu()">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <!-- Animated Background Workflow -->
+        <svg class="workflow-animation" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+            <!-- File 1 -->
+            <g class="workflow-file">
+                <rect x="150" y="400" width="100" height="70" rx="5" fill="#0a0a0a" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="420" x2="220" y2="420" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="435" x2="220" y2="435" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="450" x2="200" y2="450" stroke="#2563eb" stroke-width="2"/>
+                <text x="200" y="440" text-anchor="middle" fill="#2563eb" font-size="16" font-weight="700">DWG</text>
+            </g>
+
+            <!-- File 2 -->
+            <g class="workflow-file">
+                <rect x="150" y="400" width="100" height="70" rx="5" fill="#0a0a0a" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="420" x2="220" y2="420" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="435" x2="220" y2="435" stroke="#2563eb" stroke-width="2"/>
+                <line x1="170" y1="450" x2="200" y2="450" stroke="#2563eb" stroke-width="2"/>
+                <text x="200" y="440" text-anchor="middle" fill="#2563eb" font-size="16" font-weight="700">DWG</text>
+            </g>
+
+            <!-- Connecting Lines -->
+            <line class="connecting-line" x1="200" y1="400" x2="200" y2="320" stroke="#2563eb" stroke-width="2"/>
+            <line class="connecting-line" x1="200" y1="400" x2="200" y2="320" stroke="#2563eb" stroke-width="2"/>
+
+            <!-- AI Engine -->
+            <g class="ai-engine">
+                <circle cx="200" cy="280" r="40" fill="#0a0a0a" stroke="#2563eb" stroke-width="3"/>
+                <circle cx="190" cy="270" r="6" fill="#2563eb"/>
+                <circle cx="210" cy="270" r="6" fill="#2563eb"/>
+                <path d="M 185 290 Q 200 300 215 290" stroke="#2563eb" stroke-width="3" fill="none"/>
+                <text x="200" y="288" text-anchor="middle" fill="#2563eb" font-size="18" font-weight="800">AI</text>
+            </g>
+
+            <!-- Check Mark 1 -->
+            <g class="check-mark">
+                <circle cx="260" cy="280" r="20" fill="#10b981" opacity="0.2"/>
+                <path d="M 250 280 L 257 287 L 270 272" stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Check Mark 2 -->
+            <g class="check-mark">
+                <circle cx="260" cy="280" r="20" fill="#10b981" opacity="0.2"/>
+                <path d="M 250 280 L 257 287 L 270 272" stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Map Area -->
+            <g transform="translate(130, 80)">
+                <!-- Map Polygon 1 -->
+                <polygon class="map-polygon" points="20,80 60,70 70,110 30,120" fill="#2563eb" opacity="0.6" stroke="#0a0a0a" stroke-width="2"/>
+                
+                <!-- Map Polygon 2 -->
+                <polygon class="map-polygon" points="70,110 110,100 120,140 80,150" fill="#3b82f6" opacity="0.6" stroke="#0a0a0a" stroke-width="2"/>
+                
+                <!-- Map Polygon 3 -->
+                <polygon class="map-polygon" points="30,40 70,30 80,70 40,80" fill="#2563eb" opacity="0.6" stroke="#0a0a0a" stroke-width="2"/>
+                
+                <!-- Map Polygon 4 -->
+                <polygon class="map-polygon" points="80,70 120,60 130,100 90,110" fill="#3b82f6" opacity="0.6" stroke="#0a0a0a" stroke-width="2"/>
+                
+                <!-- Grid lines -->
+                <line x1="0" y1="0" x2="150" y2="0" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="0" y1="50" x2="150" y2="50" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="0" y1="100" x2="150" y2="100" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="0" y1="150" x2="150" y2="150" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="0" y1="0" x2="0" y2="150" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="50" y1="0" x2="50" y2="150" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="100" y1="0" x2="100" y2="150" stroke="#e5e5e5" stroke-width="1"/>
+                <line x1="150" y1="0" x2="150" y2="150" stroke="#e5e5e5" stroke-width="1"/>
+                
+                <text x="75" y="-10" text-anchor="middle" fill="#2563eb" font-size="12" font-weight="700">Continuous GIS Data</text>
+            </g>
+        </svg>
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge" data-en="Automated DWG to GIS Intelligence" data-he="אוטומציה חכמה מ-AsMase (dwg) ל-GIS">
+                    Automated DWG to GIS Intelligence
+                </div>
+                <h1 data-en="From DWG Files to Complete GIS Database - Fully Automated" data-he="מקבצי אזמייד (DWG) למאגר GIS  - אוטומציה מלאה">
+                    From DWG Files to Complete GIS Database - Fully Automated
+                </h1>
+                <p class="hero-subtitle" data-en="Zero manual validation. Automatic DWG compliance checking, intelligent conversion to continuous GIS database, and enrichment with cadastre and ownership layers" 
+                   data-he="ללא בדיקה ידנית, בדיקת תאימות אוטומטית למבא״ת, המרה חכמה למאגר GIS רצוף, והצלבה גאוגרפית עם שכבות קדסטר ובעלויות">
+                    Zero manual validation. Automatic DWG compliance checking, intelligent conversion to continuous GIS database, and enrichment with cadastre and ownership layers
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="window.location.href='#contact'" data-en="Request Demo" data-he="בקש הדגמה">Request Demo</button>
+                    <button class="btn-secondary" onclick="window.location.href='#case-study'" data-en="See Modiin Case Study" data-he="צפה במקרה מודיעין">See Modiin Case Study</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label" data-en="Automated Validation" data-he="אימות אוטומטי">Automated Validation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">80%</div>
+                <div class="stat-label" data-en="Time Reduction" data-he="הפחתת זמן">Time Reduction</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label" data-en="Manual Checks Needed" data-he="בדיקות ידניות נדרשות">Manual Checks Needed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label" data-en="MAVAT Compliance" data-he="תאימות מבא״ת">MAVAT Compliance</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge" data-en="Core Capabilities" data-he="יכולות ליבה">Core Capabilities</div>
+                <h2 class="section-title" data-en="Three-Stage Automated Workflow" data-he="תהליך עבודה אוטומטי בשלושה שלבים">
+                    Three-Stage Automated Workflow
+                </h2>
+                <p class="section-subtitle" data-en="From validation to enriched GIS database - completely automated without human intervention" 
+                   data-he="מקבצי מדידה למאגר GIS מועשר - אוטומטי לחלוטין ללא התערבות אנושית">
+                    From validation to enriched GIS database - completely automated without human intervention
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3 class="feature-title" data-en="Stage 1: Automated MAVAT Validation" data-he="שלב 1: המרה אוטומטי של קבצי מדידה בפורמט אישי\מבא״ת">Stage 1: Automated MAVAT Validation</h3>
+                    <p class="feature-description" data-en="Zero human validation required. Automatically validates survey files against MAVAT standards, checking format compliance, data structure, and required fields. Generates comprehensive error reports with specific line numbers and fix recommendations. 100% compliance guaranteed before proceeding to conversion." 
+                       data-he="ללא צורך באימות אנושי. מאמת אוטומטית קבצי מדידה מול תקני מבא״ת, בודק תאימות פורמט, מבנה נתונים ושדות חובה. מייצר דוחות שגיאה מקיפים עם מספרי שורות ספציפיים והמלצות לתיקון. תאימות של 100% מובטחת לפני המעבר להמרה.">
+                        Zero human validation required. Automatically validates survey files against MAVAT standards, checking format compliance, data structure, and required fields. Generates comprehensive error reports with specific line numbers and fix recommendations. 100% compliance guaranteed before proceeding to conversion.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title" data-en="Stage 2: Intelligent GIS Database Conversion" data-he="שלב 2: המרה חכמה למאגר GIS">Stage 2: Intelligent GIS Database Conversion</h3>
+                    <p class="feature-description" data-en="Transforms validated MAVAT files into a continuous, structured GIS database. Automatically extracts attributes from text blocks and intelligently assigns them to corresponding polyline and polygon features. Creates topologically correct features with proper spatial relationships, ensuring data continuity across the entire survey area." 
+                       data-he="ממיר קבצי מבא״ת מאומתים למאגר GIS רצוף ומובנה. מחלץ אוטומטית תכונות מבלוקים טקסטואליים ומקצה אותן בצורה חכמה לישויות פוליליין ופוליגון המתאימות. יוצר ישויות נכונות טופולוגית עם יחסים מרחביים תקינים, מבטיח רציפות נתונים על פני כל אזור המדידה.">
+                        Transforms validated MAVAT files into a continuous, structured GIS database. Automatically extracts attributes from text blocks and intelligently assigns them to corresponding polyline and polygon features. Creates topologically correct features with proper spatial relationships, ensuring data continuity across the entire survey area.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title" data-en="Stage 3: GIS Layer Enrichment" data-he="שלב 3: העשרת שכבות GIS">Stage 3: GIS Layer Enrichment</h3>
+                    <p class="feature-description" data-en="Automatically enriches the GIS database with additional critical layers including cadastre data, ownership information, zoning regulations, and municipal boundaries. Performs spatial joins and attribute matching to create a comprehensive, multi-layered GIS system ready for analysis and decision-making." 
+                       data-he="מעשיר אוטומטית את מאגר ה-GIS בשכבות קריטיות נוספות כולל נתוני קדסטר, מידע בעלות, תקנות ייעוד ומגבלות עירוניות. מבצע חיבורים מרחביים והתאמת תכונות ליצירת מערכת GIS מקיפה ורב-שכבתית מוכנה לניתוח וקבלת החלטות.">
+                        Automatically enriches the GIS database with additional critical layers including cadastre data, ownership information, zoning regulations, and municipal boundaries. Performs spatial joins and attribute matching to create a comprehensive, multi-layered GIS system ready for analysis and decision-making.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title" data-en="Smart Block-to-Feature Attribution" data-he="ייחוס חכם מבלוק לישות">Smart Block-to-Feature Attribution</h3>
+                    <p class="feature-description" data-en="Advanced algorithm intelligently extracts data from CAD text blocks and assigns attributes to the correct spatial features. Handles complex scenarios with multiple blocks and features, using spatial proximity, layer matching, and semantic analysis to ensure accurate data transfer from blocks to polylines and polygons." 
+                       data-he="אלגוריתם מתקדם שמחלץ נתונים מבלוקי טקסט CAD ומייחס תכונות לישויות המרחביות הנכונות. מטפל בתרחישים מורכבים עם בלוקים וישויות מרובים, משתמש בקרבה מרחבית, התאמת שכבות וניתוח סמנטי להבטחת העברת נתונים מדויקת מבלוקים לפוליליינים ופוליגונים.">
+                        Advanced algorithm intelligently extracts data from CAD text blocks and assigns attributes to the correct spatial features. Handles complex scenarios with multiple blocks and features, using spatial proximity, layer matching, and semantic analysis to ensure accurate data transfer from blocks to polylines and polygons.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title" data-en="Real-Time Processing & Monitoring" data-he="עיבוד וניטור בזמן אמת">Real-Time Processing & Monitoring</h3>
+                    <p class="feature-description" data-en="Lightning-fast processing with live progress monitoring. Track validation, conversion, and enrichment stages in real-time. Receive instant notifications of any issues and view detailed logs for complete transparency throughout the automated workflow." 
+                       data-he="עיבוד מהיר כברק עם ניטור התקדמות חי. עקוב אחר שלבי אימות, המרה והעשרה בזמן אמת. קבל התראות מיידיות על כל בעיה וצפה ביומנים מפורטים לשקיפות מלאה לאורך תהליך העבודה האוטומטי.">
+                        Lightning-fast processing with live progress monitoring. Track validation, conversion, and enrichment stages in real-time. Receive instant notifications of any issues and view detailed logs for complete transparency throughout the automated workflow.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3 class="feature-title" data-en="Enterprise Integration" data-he="אינטגרציה ארגונית">Enterprise Integration</h3>
+                    <p class="feature-description" data-en="Seamless integration with existing municipal GIS systems, CAD software, and planning platforms. Export to multiple formats including Shapefile, GeoJSON, KML, and enterprise geodatabases. API access for custom workflows and automated data pipelines." 
+                       data-he="אינטגרציה חלקה עם מערכות GIS עירוניות קיימות, תוכנות CAD ופלטפורמות תכנון. ייצוא למגוון פורמטים כולל Shapefile, GeoJSON, KML ומאגרי נתונים גיאוגרפיים ארגוניים. גישת API לתהליכי עבודה מותאמים וצנרות נתונים אוטומטיות.">
+                        Seamless integration with existing municipal GIS systems, CAD software, and planning platforms. Export to multiple formats including Shapefile, GeoJSON, KML, and enterprise geodatabases. API access for custom workflows and automated data pipelines.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Study Section -->
+    <section class="case-study" id="case-study">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge" data-en="Success Story" data-he="סיפור הצלחה">Success Story</div>
+                <h2 class="section-title" data-en="How Modiin Municipality Transformed Their Surveying Department" data-he="כיצד עיריית מודיעין שינתה את מחלקת המדידות">
+                    How Modiin Municipality Transformed Their Surveying Department
+                </h2>
+                <p class="section-subtitle" data-en="From manual validation processes to fully automated GIS workflows" 
+                   data-he="מתהליכי אימות ידניים לתהליכי עבודה GIS אוטומטיים לחלוטין">
+                    From manual validation processes to fully automated GIS workflows
+                </p>
+            </div>
+            
+            <div class="case-study-card">
+                <div class="case-study-header">
+                    <div class="case-study-logo">🏛️</div>
+                    <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;" data-en="Modiin-Maccabim-Reut Municipality" data-he="עיריית מודיעין-מכבים-רעות">
+                        Modiin-Maccabim-Reut Municipality
+                    </h3>
+                    <p style="color: var(--text-secondary); font-size: 1.125rem;" data-en="Leading smart city in central Israel" data-he="עיר חכמה מובילה במרכז הארץ">
+                        Leading smart city in central Israel
+                    </p>
+                </div>
+
+                <div class="case-study-content">
+                    <div class="case-study-section">
+                        <h4 data-en="The Challenge" data-he="האתגר">The Challenge</h4>
+                        <p data-en="Modiin Municipality's surveying department was overwhelmed with manual MAVAT file validation, spending countless hours checking format compliance. Survey data remained in fragmented CAD files, making it difficult to maintain a comprehensive GIS database. The department struggled with integrating cadastre and ownership data, leading to delays in planning processes." 
+                           data-he="מחלקת המדידות בעיריית מודיעין הייתה עמוסה באימות ידני של קבצי מבא״ת, הוקדשו שעות רבות לבדיקת תאימות פורמט. נתוני המדידה נותרו בקבצי CAD מפוצלים, מה שהקשה על תחזוקת מאגר GIS מקיף. המחלקה נאבקה באינטגרציה של נתוני קדסטר ובעלות, מה שהוביל לעיכובים בתהליכי תכנון.">
+                            Modiin Municipality's surveying department was overwhelmed with manual MAVAT file validation, spending countless hours checking format compliance. Survey data remained in fragmented CAD files, making it difficult to maintain a comprehensive GIS database. The department struggled with integrating cadastre and ownership data, leading to delays in planning processes.
+                        </p>
+                    </div>
+
+                    <div class="case-study-section">
+                        <h4 data-en="The Solution" data-he="הפתרון">The Solution</h4>
+                        <p data-en="GeomAI implemented a fully automated three-stage workflow: (1) Automated MAVAT validation with zero human intervention, catching errors instantly and providing detailed fix recommendations. (2) Intelligent conversion of survey files into a continuous GIS database, automatically extracting block attributes and assigning them to correct polyline and polygon features. (3) Automatic enrichment with cadastre, ownership, and zoning layers, creating a comprehensive multi-layered GIS system." 
+                           data-he="GeomAI יישמה תהליך עבודה אוטומטי לחלוטין בשלושה שלבים: (1) אימות אוטומטי של מבא״ת ללא התערבות אנושית, תפיסת שגיאות באופן מיידי ומתן המלצות תיקון מפורטות. (2) המרה חכמה של קבצי מדידה למאגר GIS רצוף, חילוץ אוטומטי של תכונות בלוק והקצאתן לישויות פוליליין ופוליגון נכונות. (3) העשרה אוטומטית בשכבות קדסטר, בעלות וייעוד, יצירת מערכת GIS רב-שכבתית מקיפה.">
+                            GeomAI implemented a fully automated three-stage workflow: (1) Automated MAVAT validation with zero human intervention, catching errors instantly and providing detailed fix recommendations. (2) Intelligent conversion of survey files into a continuous GIS database, automatically extracting block attributes and assigning them to correct polyline and polygon features. (3) Automatic enrichment with cadastre, ownership, and zoning layers, creating a comprehensive multi-layered GIS system.
+                        </p>
+                    </div>
+
+                    <div class="case-study-section">
+                        <h4 data-en="The Transformation" data-he="השינוי">The Transformation</h4>
+                        <p data-en="The surveying department underwent a complete digital transformation. Manual validation processes were eliminated entirely. What previously took weeks of manual work now completes in hours, fully automated. The department now maintains a continuously updated, comprehensive GIS database enriched with all necessary layers. Planning decisions are made faster and with greater confidence, based on accurate, integrated spatial data." 
+                           data-he="מחלקת המדידות עברה שינוי דיגיטלי מלא. תהליכי האימות הידניים בוטלו לחלוטין. מה שנלקח בעבר שבועות של עבודה ידנית, מסתיים כעת בשעות, אוטומטי לחלוטין. המחלקה מנהלת כעת מאגר GIS מקיף המתעדכן באופן רצוף ומועשר בכל השכבות הנדרשות. החלטות תכנון מתקבלות מהר יותר ובביטחון רב יותר, מבוססות על נתונים מרחביים מדויקים ומשולבים.">
+                            The surveying department underwent a complete digital transformation. Manual validation processes were eliminated entirely. What previously took weeks of manual work now completes in hours, fully automated. The department now maintains a continuously updated, comprehensive GIS database enriched with all necessary layers. Planning decisions are made faster and with greater confidence, based on accurate, integrated spatial data.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="case-study-results">
+                    <div class="result-item">
+                        <div class="result-number">80%</div>
+                        <div class="result-label" data-en="Time Saved on Processing" data-he="חיסכון בזמן עיבוד">Time Saved on Processing</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-number">100%</div>
+                        <div class="result-label" data-en="Validation Automated" data-he="אימות אוטומטי">Validation Automated</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-number">5x</div>
+                        <div class="result-label" data-en="Faster Decision Making" data-he="קבלת החלטות מהירה יותר">Faster Decision Making</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Demo Section -->
+    <section class="video-section" id="demo">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge" data-en="Live Demo" data-he="הדגמה חיה">Live Demo</div>
+                <h2 class="section-title" data-en="See GeomAI in Action" data-he="ראה את GeomAI בפעולה">See GeomAI in Action</h2>
+                <p class="section-subtitle" data-en="Watch the complete automated workflow from MAVAT validation to enriched GIS database" 
+                   data-he="צפה בתהליך העבודה האוטומטי המלא מאימות מבא״ת למאגר GIS ">
+                    Watch the complete automated workflow from MAVAT validation to enriched GIS database
+                </p>
+            </div>
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <div class="video-placeholder">
+                        <div class="play-button" onclick="playVideo()">
+                            <div class="play-icon"></div>
+                        </div>
+                    </div>
+                    <video id="demoVideo" loop muted playsinline>
+                        <source src="demo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="download-section" id="download">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge" data-en="Resources" data-he="משאבים">Resources</div>
+                <h2 class="section-title" data-en="Technical Documentation" data-he="תיעוד טכני">Technical Documentation</h2>
+                <p class="section-subtitle" data-en="Complete guide to GeomAI's automated workflows and integration capabilities" 
+                   data-he="מדריך מלא לתהליכי העבודה האוטומטיים ויכולות האינטגרציה של GeomAI">
+                    Complete guide to GeomAI's automated workflows and integration capabilities
+                </p>
+            </div>
+            <div class="download-card">
+                <div class="download-icon">📚</div>
+                <h3 style="font-size: 2rem; margin-bottom: 1.25rem; font-weight: 800; letter-spacing: -0.02em;" data-en="System Architecture & Integration Guide" data-he="ארכיטקטורת מערכת ומדריך אינטגרציה">
+                    System Architecture & Integration Guide
+                </h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.8; font-size: 1.125rem;" 
+                   data-en="Detailed documentation covering MAVAT validation algorithms, GIS conversion processes, layer enrichment methods, API specifications, and integration examples with municipal systems." 
+                   data-he="תיעוד מפורט המכסה אלגוריתמי אימות מבא״ת, תהליכי המרת GIS, שיטות העשרת שכבות, מפרטי API ודוגמאות אינטגרציה עם מערכות עירוניות.">
+                    Detailed documentation covering MAVAT validation algorithms, GIS conversion processes, layer enrichment methods, API specifications, and integration examples with municipal systems.
+                </p>
+                <button class="btn-primary" onclick="window.location.href='#contact'" data-en="Request Documentation" data-he="בקש תיעוד">
+                    Request Documentation
+                </button>
+                <div class="download-info">
+                    <div class="download-stat"><strong data-en="Format:" data-he="פורמט:">Format:</strong> <span data-en="PDF" data-he="PDF">PDF</span></div>
+                    <div class="download-stat"><strong data-en="Pages:" data-he="עמודים:">Pages:</strong> 45</div>
+                    <div class="download-stat"><strong data-en="Version:" data-he="גרסה:">Version:</strong> 3.0</div>
+                    <div class="download-stat"><strong data-en="Updated:" data-he="עודכן:">Updated:</strong> <span data-en="Nov 2025" data-he="נובמבר 2025">Nov 2025</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge" data-en="Get In Touch" data-he="צור קשר">Get In Touch</div>
+                <h2 class="section-title" data-en="Ready to Automate Your Surveying Workflow?" data-he="מוכן להפוך את תהליך המדידה לאוטומטי?">
+                    Ready to Automate Your Surveying Workflow?
+                </h2>
+                <p class="section-subtitle" data-en="Contact us today for a personalized demo and discover how GeomAI can transform your department" 
+                   data-he="צור איתנו קשר היום להדגמה אישית וגלה כיצד GeomAI יכול לשנות את המחלקה שלך">
+                    Contact us today for a personalized demo and discover how GeomAI can transform your department
+                </p>
+            </div>
+            <div class="contact-cards">
+                <a href="mailto:medadhoze93@gmail.com?subject=GeomAI Demo Request&body=Hi, I'm interested in learning more about GeomAI's automated MAVAT to GIS conversion platform." class="contact-card email-card">
+                    <div class="contact-card-icon">📧</div>
+                    <h3 class="contact-card-title" data-en="Email Us" data-he="שלח אימייל">Email Us</h3>
+                    <p class="contact-card-detail">medadhoze93@gmail.com</p>
+                    <div class="contact-card-action" data-en="Send Email →" data-he="שלח אימייל ←">Send Email →</div>
+                </a>
+                <a href="https://wa.me/972545364738?text=Hi%2C%20I%27m%20interested%20in%20learning%20more%20about%20GeomAI%27s%20automated%20MAVAT%20to%20GIS%20conversion%20platform." target="_blank" class="contact-card whatsapp-card">
+                    <div class="contact-card-icon">💬</div>
+                    <h3 class="contact-card-title" data-en="WhatsApp" data-he="וואטסאפ">WhatsApp</h3>
+                    <p class="contact-card-detail">+972 54-536-4738</p>
+                    <div class="contact-card-action" data-en="Chat Now →" data-he="התחל שיחה ←">Chat Now →</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>GeomAI</h3>
+                <p data-en="Revolutionizing municipal surveying workflows with fully automated MAVAT validation, intelligent GIS conversion, and comprehensive data enrichment." 
+                   data-he="מהפכה בתהליכי עבודה של מדידות עירוניות עם אימות אוטומטי מלא של מבא״ת, המרת GIS חכמה והעשרת נתונים מקיפה.">
+                    Revolutionizing municipal surveying workflows with fully automated MAVAT validation, intelligent GIS conversion, and comprehensive data enrichment.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-link">f</a>
+                    <a href="#" class="social-link">in</a>
+                    <a href="#" class="social-link">X</a>
+                    <a href="#" class="social-link">@</a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4 data-en="Solutions" data-he="פתרונות">Solutions</h4>
+                <ul>
+                    <li><a href="#" data-en="MAVAT Validation" data-he="אימות מבא״ת">MAVAT Validation</a></li>
+                    <li><a href="#" data-en="GIS Conversion" data-he="המרת GIS">GIS Conversion</a></li>
+                    <li><a href="#" data-en="Data Enrichment" data-he="העשרת נתונים">Data Enrichment</a></li>
+                    <li><a href="#" data-en="Municipal Integration" data-he="אינטגרציה עירונית">Municipal Integration</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4 data-en="Company" data-he="חברה">Company</h4>
+                <ul>
+                    <li><a href="#" data-en="About Us" data-he="אודות">About Us</a></li>
+                    <li><a href="#case-study" data-en="Case Studies" data-he="מקרי בוחן">Case Studies</a></li>
+                    <li><a href="#" data-en="Technology" data-he="טכנולוגיה">Technology</a></li>
+                    <li><a href="#" data-en="Partners" data-he="שותפים">Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4 data-en="Support" data-he="תמיכה">Support</h4>
+                <ul>
+                    <li><a href="#" data-en="Documentation" data-he="תיעוד">Documentation</a></li>
+                    <li><a href="#contact" data-en="Contact" data-he="צור קשר">Contact</a></li>
+                    <li><a href="#" data-en="System Status" data-he="סטטוס מערכת">System Status</a></li>
+                    <li><a href="#" data-en="Training" data-he="הדרכה">Training</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-en="© 2025 GeomAI. All rights reserved. | Transforming Israeli municipalities with intelligent automation 🇮🇱" 
+               data-he="© 2025 GeomAI. כל הזכויות שמורות. | משנים רשויות ישראליות עם אוטומציה חכמה 🇮🇱">
+                © 2025 GeomAI. All rights reserved. | Transforming Israeli municipalities with intelligent automation 🇮🇱
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        
+ let currentLang = 'he';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setLanguage(currentLang); // no button on first load – function handles it
+  });
+
+  function setLanguage(lang, btnEl) {
+    currentLang = lang;
+
+    // lang + direction
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === 'he') ? 'rtl' : 'ltr';
+    document.body.classList.toggle('rtl', lang === 'he');
+
+    // highlight the active language button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      const shouldBeActive = (btn === btnEl) || (btn.dataset.lang === lang);
+      btn.classList.toggle('active', shouldBeActive);
+    });
+
+    // swap all text nodes that have both languages
+    document.querySelectorAll('[data-en][data-he]').forEach(el => {
+      const nextText = el.getAttribute(`data-${lang}`);
+      if (nextText != null) el.textContent = nextText;
+    });
+  }
+
+        
+
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('active');
+        }
+        
+        // Video playback
+        function playVideo() {
+            const video = document.getElementById('demoVideo');
+            const placeholder = document.querySelector('.video-placeholder');
+            
+            if (video.paused) {
+                video.play();
+                placeholder.style.display = 'none';
+            } else {
+                video.pause();
+                placeholder.style.display = 'flex';
+            }
+        }
+        
+        // Auto-play video when in viewport (with looping)
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = document.getElementById('demoVideo');
+                if (entry.isIntersecting) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        const videoSection = document.querySelector('.video-wrapper');
+        if (videoSection) {
+            videoObserver.observe(videoSection);
+        }
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            observer.observe(card);
+        });
+        
+        // Observe stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.style.opacity = '0';
+            observer.observe(card);
+        });
+        
+        // Observe contact cards
+        document.querySelectorAll('.contact-card').forEach(card => {
+            card.style.opacity = '0';
+            observer.observe(card);
+        });
+        
+        // Animate numbers when visible
+        function animateNumber(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                if (element.textContent.includes('%')) {
+                    element.textContent = Math.floor(current) + '%';
+                } else if (element.textContent.includes('+')) {
+                    element.textContent = Math.floor(current).toLocaleString() + '+';
+                } else if (element.textContent.includes('.')) {
+                    element.textContent = current.toFixed(1) + '%';
+                } else if (element.textContent.includes('x')) {
+                    element.textContent = Math.floor(current) + 'x';
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 30);
+        }
+        
+        // Observe stat numbers
+        const statsObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumber = entry.target;
+                    const value = statNumber.textContent;
+                    let target;
+                    
+                    if (value.includes('100%')) target = 100;
+                    else if (value.includes('80%')) target = 80;
+                    else if (value === '0') target = 0;
+                    else if (value.includes('5x')) target = 5;
+                    
+                    if (target !== undefined) {
+                        animateNumber(statNumber, target);
+                        statsObserver.unobserve(statNumber);
+                    }
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.stat-number, .result-number').forEach(stat => {
+            statsObserver.observe(stat);
+        });
+    </script>
+</body>
+</html>
