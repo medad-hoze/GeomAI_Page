@@ -1243,6 +1243,7 @@
                 <li><a href="#features" data-en="Features" data-he="תכונות">Features</a></li>
                 <li><a href="#case-study" data-en="Success Story" data-he="סיפור הצלחה">Success Story</a></li>
                 <li><a href="#demo" data-en="Demo" data-he="הדגמה">Demo</a></li>
+                <li><a href="#download" data-en="Downloads" data-he="הורדות">Downloads</a></li>
                 <li><a href="#contact" data-en="Contact" data-he="צור קשר">Contact</a></li>
             </ul>
 
@@ -1272,6 +1273,7 @@
             <li><a href="#features" data-en="Features" data-he="תכונות" onclick="toggleMobileMenu()">Features</a></li>
             <li><a href="#case-study" data-en="Success Story" data-he="סיפור הצלחה" onclick="toggleMobileMenu()">Success Story</a></li>
             <li><a href="#demo" data-en="Demo" data-he="הדגמה" onclick="toggleMobileMenu()">Demo</a></li>
+            <li><a href="#download" data-en="Downloads" data-he="הורדות" onclick="toggleMobileMenu()">Downloads</a></li>
             <li><a href="#contact" data-en="Contact" data-he="צור קשר" onclick="toggleMobileMenu()">Contact</a></li>
         </ul>
     </div>
@@ -1561,29 +1563,42 @@
             <div class="section-header">
                 <div class="section-badge" data-en="Resources" data-he="משאבים">Resources</div>
                 <h2 class="section-title" data-en="Technical Documentation" data-he="תיעוד טכני">Technical Documentation</h2>
-                <p class="section-subtitle" data-en="Complete guide to GeomAI's automated workflows and integration capabilities" 
-                   data-he="מדריך מלא לתהליכי העבודה האוטומטיים ויכולות האינטגרציה של GeomAI">
-                    Complete guide to GeomAI's automated workflows and integration capabilities
+                <p class="section-subtitle" data-en="Download our research paper and conference presentation"
+                   data-he="הורד את מאמר המחקר ומצגת הכנס שלנו">
+                    Download our research paper and conference presentation
                 </p>
             </div>
-            <div class="download-card">
-                <div class="download-icon">📚</div>
-                <h3 style="font-size: 2rem; margin-bottom: 1.25rem; font-weight: 800; letter-spacing: -0.02em;" data-en="System Architecture & Integration Guide" data-he="ארכיטקטורת מערכת ומדריך אינטגרציה">
-                    System Architecture & Integration Guide
-                </h3>
-                <p style="color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.8; font-size: 1.125rem;" 
-                   data-en="Detailed documentation covering MAVAT validation algorithms, GIS conversion processes, layer enrichment methods, API specifications, and integration examples with municipal systems." 
-                   data-he="תיעוד מפורט המכסה אלגוריתמי אימות מבא״ת, תהליכי המרת GIS, שיטות העשרת שכבות, מפרטי API ודוגמאות אינטגרציה עם מערכות עירוניות.">
-                    Detailed documentation covering MAVAT validation algorithms, GIS conversion processes, layer enrichment methods, API specifications, and integration examples with municipal systems.
-                </p>
-                <button class="btn-primary" onclick="window.location.href='#contact'" data-en="Request Documentation" data-he="בקש תיעוד">
-                    Request Documentation
-                </button>
-                <div class="download-info">
-                    <div class="download-stat"><strong data-en="Format:" data-he="פורמט:">Format:</strong> <span data-en="PDF" data-he="PDF">PDF</span></div>
-                    <div class="download-stat"><strong data-en="Pages:" data-he="עמודים:">Pages:</strong> 45</div>
-                    <div class="download-stat"><strong data-en="Version:" data-he="גרסה:">Version:</strong> 3.0</div>
-                    <div class="download-stat"><strong data-en="Updated:" data-he="עודכן:">Updated:</strong> <span data-en="Nov 2025" data-he="נובמבר 2025">Nov 2025</span></div>
+
+            <!-- Download Cards Grid -->
+            <div class="contact-cards" style="max-width: 1000px; margin: 0 auto;">
+                <div class="contact-card" style="cursor: default;">
+                    <div class="download-icon" style="margin: 0 auto 1.5rem;">📄</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem; font-weight: 700;" data-en="Research Paper" data-he="מאמר מחקר">
+                        Research Paper
+                    </h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem;"
+                       data-en="DWG to GIS automated conversion engine - Technical research paper"
+                       data-he="מנוע המרה אוטומטי מ-DWG ל-GIS - מאמר מחקר טכני">
+                        DWG to GIS automated conversion engine - Technical research paper
+                    </p>
+                    <a href="DWGtoGIS.pdf" download="GeomAI-DWGtoGIS-Research-Paper.pdf" class="btn-primary" style="display: inline-block; text-decoration: none;" data-en="Download PDF" data-he="הורד PDF">
+                        Download PDF
+                    </a>
+                </div>
+
+                <div class="contact-card" style="cursor: default;">
+                    <div class="download-icon" style="margin: 0 auto 1.5rem;">📊</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem; font-weight: 700;" data-en="Conference Presentation" data-he="מצגת כנס">
+                        Conference Presentation
+                    </h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 1rem;"
+                       data-en="GeomAI platform overview and case studies presentation"
+                       data-he="סקירת פלטפורמת GeomAI ומצגת מקרי בוחן">
+                        GeomAI platform overview and case studies presentation
+                    </p>
+                    <a href="Conference.pdf" download="GeomAI-Conference-Presentation.pdf" class="btn-primary" style="display: inline-block; text-decoration: none;" data-en="Download PDF" data-he="הורד PDF">
+                        Download PDF
+                    </a>
                 </div>
             </div>
         </div>
