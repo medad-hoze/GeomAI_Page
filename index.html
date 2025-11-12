@@ -409,6 +409,46 @@
             animation: fadeInUp 0.8s ease;
         }
 
+        .webinar-alert {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: #dc2626;
+            color: var(--white);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.01em;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .webinar-alert:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(220, 38, 38, 0.5);
+        }
+
+        .webinar-date {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            opacity: 0.95;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 30px rgba(220, 38, 38, 0.7);
+            }
+        }
+
         .hero-badge {
             display: inline-flex;
             align-items: center;
@@ -1356,6 +1396,10 @@
 
         <div class="hero-container">
             <div class="hero-content">
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSd85XpbODCSPw4e3QF3QNuPzpybsccNtIe0_MjqHE1T6b1Ljw/viewform" target="_blank" class="webinar-alert" data-en="📢 Register for Webinar: Smart Automation from DWG to GIS" data-he="📢 הרשמה לוויבנר: אוטומציה חכמה מ-DWG ל-GIS">
+                    📢 הרשמה לוויבנר: אוטומציה חכמה מ-DWG ל-GIS
+                    <span class="webinar-date" data-en="📅 November 17, 2025" data-he="📅 17/11/2025">📅 17/11/2025</span>
+                </a>
                 <div class="hero-badge" data-en="Smart Automation from AsMase (dwg) to GIS" data-he="אוטומציה חכמה מ-AsMase (dwg) ל-GIS">
                     Smart Automation from AsMase (dwg) to GIS
                 </div>
